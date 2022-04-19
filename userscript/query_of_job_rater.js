@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         优学院作业评分人查询
 // @namespace    https://greasyfork.org/en/scripts/443611
-// @version      0.2
+// @version      0.21
 // @description  谁给我的作业打了一百分？岂有此理，必须要将其揪出来！(进入到指定作业页面，将自动显示评分人的名字)
 // @author       Wanten
 // @copyright    2022 Wanten
@@ -27,9 +27,9 @@
         f()
     })
     // scripts don't manipulate nodes
-    waitFor('div.each-peeritem').then(()=>{
+    waitFor('div.each-peeritem', 'div.peer_host').then(()=>{
         // scripts may manipulate these nodes
-        let url, marker = [], position, str, str1 = "", studentId, homeworkId, allCookies, AUTHORIZATION, homeworkDatil, user;
+        let url, marker = [], position, str, str1 = "", studentId, homeworkId, ocId, allCookies, AUTHORIZATION, homeworkDatil, user;
         marker[0] = "stuDetail/";
 
         //get url
@@ -49,6 +49,11 @@
         position = str.indexOf("?VNK");
         homeworkId = str.slice(0, position);
         console.log("homeworkId: " + homeworkId);
+
+        //get ocId
+        position = url.indexOf("ocId=");
+        ocId = url.slice(position + "ocId=".length);
+        console.log("ocId: " + ocId);
         
         //get AUTHORIZATION
         AUTHORIZATION = "";
@@ -74,7 +79,7 @@
                 homeworkDatil = JSON.parse(homeworkDatil);
 
                 let userLength = homeworkDatil.result.length;
-                const peerList = document.querySelectorAll(".each-peeritem");
+                let peerList = document.querySelectorAll(".peer_host");
                 console.log("peerList.length: " + peerList.length)
                 for(let i = 0; i < userLength; i++){
                     user = homeworkDatil.result[i];
@@ -86,10 +91,43 @@
                     }
                     str1 += "<br><br>"
                 }
-                const footer = document.querySelectorAll("#pane-first");
+                let footer = document.querySelectorAll(".peertask_other");
                 footer[0].innerHTML = footer[0].innerHTML + str1;
+
+                //get HomeworkDatil
+                str1 = "";
+                url = " https://homeworkapi.ulearning.cn/stuHomework/homeworkDetail/" + homeworkId + "/" + studentId + "/" + ocId;
+                let xhttp1 = new XMLHttpRequest();
+                xhttp1.open('GET', url, true)
+                xhttp1.setRequestHeader("AUTHORIZATION", AUTHORIZATION);
+                xhttp1.onreadystatechange = function() {
+                    if(xhttp1.readyState == 4 && xhttp1.status == 200){
+                        homeworkDatil = xhttp1.response;
+                        console.log(homeworkDatil)
+                        homeworkDatil = JSON.parse(homeworkDatil);
+
+                        let userLength = homeworkDatil.result.peerReviewHomeworkList.length;
+                        peerList = document.querySelectorAll(".each-peeritem");
+                        console.log("peerList.length: " + peerList.length)
+                        for(let i = 0; i < userLength; i++){
+                            user = homeworkDatil.result.peerReviewHomeworkList[i];
+                            str = '<div style="color:black;padding-bottom:5px;font:1.4em bold;">'+user.name+'</div>';
+                            peerList[i].innerHTML = str + peerList[i].innerHTML;
+                            str1 += i + 1 + ": <br>"
+                            for(const key in user){
+                                str1 += `${key}: ${user[key]}<br>`
+                            }
+                            str1 += "<br><br>"
+                        }
+                        footer = document.querySelectorAll("#pane-first");
+                        footer[0].innerHTML = footer[0].innerHTML + str1;
+                    }
+                }
+                xhttp1.send();
             }
         }
         xhttp.send();
+
+        
     })
 })();
