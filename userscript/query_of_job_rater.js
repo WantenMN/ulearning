@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         优学院作业评分人查询
-// @namespace    https://github.com/WantenMN/ulearning
-// @version      0.1
+// @namespace    https://greasyfork.org/en/scripts/443611
+// @version      0.2
 // @description  谁给我的作业打了一百分？岂有此理，必须要将其揪出来！(进入到指定作业页面，将自动显示评分人的名字)
 // @author       Wanten
 // @copyright    2022 Wanten
