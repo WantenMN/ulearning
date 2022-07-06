@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         优学院作业评分人查询
 // @namespace    https://greasyfork.org/en/scripts/443611
-// @version      0.21
+// @version      0.22
 // @description  谁给我的作业打了一百分？岂有此理，必须要将其揪出来！(进入到指定作业页面，将自动显示评分人的名字)
 // @author       Wanten
 // @copyright    2022 Wanten
@@ -27,7 +27,7 @@
         f()
     })
     // scripts don't manipulate nodes
-    waitFor('div.each-peeritem', 'div.peer_host').then(()=>{
+    waitFor('div.peer_host').then(()=>{
         // scripts may manipulate these nodes
         let url, marker = [], position, str, str1 = "", studentId, homeworkId, ocId, allCookies, AUTHORIZATION, homeworkDatil, user;
         marker[0] = "stuDetail/";
